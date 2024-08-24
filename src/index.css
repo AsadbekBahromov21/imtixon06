@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.scroll-none::-webkit-scrollbar {
+    display: none;
+}
+.scroll-none::-moz-scrollbar {
+    display: none;
+}
+
+@layer utilities {
+    .container {
+        @apply mx-auto;
+    }
+}
+.navbar__collection .active {
+    color: red;
+}
