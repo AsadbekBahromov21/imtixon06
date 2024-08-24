@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import navbar from "../../assets/Header.png";
 import "./header.css";
 import { CiSearch } from "react-icons/ci";
@@ -9,9 +9,31 @@ import { IoPersonOutline } from "react-icons/io5";
 import { RiMenu2Fill } from "react-icons/ri";
 import { Link, NavLink } from "react-router-dom";
 import { useStateValue } from "../context/Index";
+import axios from "@/api/index";
 const Hader = () => {
+  const [searchRes, setSearchRes] = useState(null);
+  const [search, setSearch] = useState("");
+  const [searchFocus, setSearchFocus] = useState(false);
+
+  useEffect(() => {
+    search.trim().length >= 3
+      ? axios
+          .get(`/products/search`, {
+            params: {
+              q: search,
+            },
+          })
+          .then((res) => setSearchRes(res.data))
+          .catch((err) => console.log(err))
+      : setSearchRes(null);
+  }, [search]);
+  // console.log(data);
+
+  const searchHandler = (e) => {
+    setSearch(e.target.value);
+  };
   const [{ wishlist, cart }, dispatch] = useStateValue();
-  console.log(wishlist.length);
+  // console.log(wishlist.length);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const toggleMenu = () => {
@@ -36,11 +58,29 @@ const Hader = () => {
               <option value="">Car</option>
             </select>
             <hr className="w-[1px] h-[20px] bg-[#eee]" />
-            <input
-              className="border-none outline-none w-[60%] pl-2 text-[14px]"
-              type="text"
-              placeholder="Search for items..."
-            />
+            <div className="relative hidden sm:block">
+              <input
+                className="border-none outline-none w-[60%] pl-2 text-[14px]"
+                type="text"
+                placeholder="Search for items..."
+                value={search}
+                onChange={searchHandler}
+                onFocus={() => setSearchFocus(true)}
+                onBlur={() => {
+                  setSearchFocus(false);
+                  setSearch("");
+                }}
+              />
+              <div
+                className={`absolute top-[50px] left-0 w-[210px] p-4  h-[150px] bg-[#eee] overflow-y-scroll ${
+                  searchFocus ? "" : "hidden"
+                }`}
+              >
+                <ul className="flex flex-col gap-4 ml-1 text-[13px] ">
+                  {searchRes?.products?.map((product) => product.title)}
+                </ul>
+              </div>
+            </div>
             <button>
               <CiSearch />
             </button>
